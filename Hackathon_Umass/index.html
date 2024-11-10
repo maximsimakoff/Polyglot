@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Polyglot</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            font-family: 'Open Sans', sans-serif;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .hero {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            z-index: 1;
+            position: relative;
+        }
+        .title {
+            font-size: 7rem;
+            color: #0F0;
+            position: relative;
+            padding-bottom: 0.2em;
+        }
+        .title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 0.1em;
+            background: linear-gradient(to right, #0F0, #F00);
+            transform: scaleX(0);
+            transform-origin: bottom right;
+            transition: transform 0.4s ease;
+        }
+        .title:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+        .scroll-button {
+            margin-top: 1rem;
+            padding: 0.5rem 1.5rem;
+            background-color: #0F0;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background-color 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+        .scroll-button:hover {
+            background-color: #F00;
+            color: white;
+        }
+        h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .content, .who-are-we, .interact {
+            padding: 4rem 2rem;
+            color: white;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        .team-member {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .member {
+            margin: 1rem;
+            text-align: left;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 10px;
+            width: 300px;
+        }
+        .member img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .member h3 {
+            margin: 0.5rem 0;
+            color: #0F0;
+        }
+        .member p {
+            margin: 0.3rem 0;
+        }
+        .member a {
+            color: #0F0;
+            text-decoration: none;
+        }
+        .member a:hover {
+            text-decoration: underline;
+        }
+        .input-output-section {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input-box, .output-box {
+            width: 100%;
+            max-width: 600px;
+            margin: 1rem 0;
+            padding: 1rem;
+            font-size: 1rem;
+            border: 2px solid #0F0;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+            resize: none;
+        }
+        .output-box {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 2px solid #0F0;
+            user-select: text;
+            cursor: default;
+        }
+        .button-30 {
+            margin: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: black;
+            background-color: #0F0;
+            transition: background-color 0.3s;
+        }
+        .button-30.active {
+            background-color: #00A000;
+        }
+        .button-30:hover {
+            background-color: #1D9D1D;
+        }
+        .button-30-red {
+            background-color: #F00;
+            color: white;
+        }
+        .button-30-red.active {
+            background-color: #CC0000;
+        }
+        .button-30-red:hover {
+            background-color: #CC0000;
+        }
+        .button-85 {
+            padding: 1em 3em;
+            font-size: 24px;
+            font-weight: bold;
+            border: none;
+            outline: none;
+            color: rgb(255, 255, 255);
+            background: #111;
+            cursor: pointer;
+            position: relative;
+            z-index: 0;
+            border-radius: 10px;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            margin-top: 1rem;
+        }
+        .button-85:before {
+            content: "";
+            background: linear-gradient(
+                45deg,
+                #ff0000,
+                #ff7300,
+                #fffb00,
+                #48ff00,
+                #00ffd5,
+                #002bff,
+                #7a00ff,
+                #ff00c8,
+                #ff0000
+            );
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            background-size: 400%;
+            z-index: -1;
+            filter: blur(5px);
+            -webkit-filter: blur(5px);
+            width: calc(100% + 4px);
+            height: calc(100% + 4px);
+            animation: glowing-button-85 20s linear infinite;
+            transition: opacity 0.3s ease-in-out;
+            border-radius: 10px;
+        }
+        @keyframes glowing-button-85 {
+            0% {
+                background-position: 0 0;
+            }
+            50% {
+                background-position: 400% 0;
+            }
+            100% {
+                background-position: 0 0;
+            }
+        }
+        .button-85:after {
+            z-index: -1;
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #222;
+            left: 0;
+            top: 0;
+            border-radius: 10px;
+        }
+        .input-buttons, .output-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    <div class="hero">
+        <div class="title">Polyglot</div>
+        <button class="scroll-button" onclick="scrollToContent()">Scroll</button>
+    </div>
+
+    <div id="contentSection" class="content">
+        <h2>About</h2>
+        <p>Have you ever tried to build something knowing one language but not another?</p>
+        <p>We are your solution!</p>
+        <p>Polyglot is an innovative application that leverages the power of the OpenAI API to seamlessly translate code from any programming language into one of five supported languages. Whether you're a developer working across multiple languages or simply exploring new coding paradigms, Polyglot makes it easy to convert your code efficiently and accurately.</p>
+    </div>
+
+    <div id="whoAreWeSection" class="who-are-we">
+        <h2>Who Are We?</h2>
+        <div class="team-member">
+            <div class="member">
+                <img src="assets/maximsimakoffheadshot.jpeg" alt="Maxim Simakoff Image">
+                <h3>Maxim Simakoff</h3>
+                <p>Major: Computer Science</p>
+                <p>Interests: Soccer, Programming, Video Games</p>
+                <p>Let's Connect! <a href="https://www.linkedin.com/in/maxim-simakoff/" target="_blank">LinkedIn</a></p>
+            </div>
+            <div class="member">
+                <img src="assets/IMG_2147.jpg" alt="Ivan Matviichuk Image">
+                <h3>Ivan Matviichuk</h3>
+                <p>Major: Computer Science</p>
+                <p>Interests: Cybersecurity, Volleyball, Python</p>
+                <p>Let's Connect! <a href="https://www.linkedin.com/in/%D1%96van-matviichuk-a13660305/" target="_blank">LinkedIn</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="interactSection" class="interact">
+        <h2>Interact with Polyglot!</h2>
+        <p>Input your text below (up to 1000 characters), and see the output appear in the output box.</p>
+        
+        <div class="input-buttons">
+            <button class="button-30" id="btnC1" onclick="selectInputButton(this)">C</button>
+            <button class="button-30" id="btnCpp1" onclick="selectInputButton(this)">C++</button>
+            <button class="button-30" id="btnPython1" onclick="selectInputButton(this)">Python</button>
+            <button class="button-30" id="btnJava1" onclick="selectInputButton(this)">Java</button>
+            <button class="button-30" id="btnAssembly1" onclick="selectInputButton(this)">Assembly</button>
+        </div>
+
+        <div class="input-output-section">
+            <textarea id="inputBox" class="input-box" maxlength="1000" placeholder="Type your input here..."style="overflow: hidden;"></textarea>
+        </div>
+
+        <div class="output-buttons">
+            <button class="button-30 button-30-red" id="btnC2" onclick="selectOutputButton(this)">C</button>
+            <button class="button-30 button-30-red" id="btnCpp2" onclick="selectOutputButton(this)">C++</button>
+            <button class="button-30 button-30-red" id="btnPython2" onclick="selectOutputButton(this)">Python</button>
+            <button class="button-30 button-30-red" id="btnJava2" onclick="selectOutputButton(this)">Java</button>
+            <button class="button-30 button-30-red" id="btnAssembly2" onclick="selectOutputButton(this)">Assembly</button>
+        </div>
+
+        <div class="input-output-section">
+            <textarea id="outputBox" class="output-box" readonly placeholder="Output will appear here..."style="overflow: hidden;"></textarea>
+        </div>
+
+        <button class="button-85">CONVERT!</button>
+    </div>
+
+    <script>
+        function scrollToContent() {
+            document.getElementById('contentSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth * 2;
+        canvas.height = document.body.scrollHeight * 2;
+        ctx.scale(2, 2);
+
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const fontSize = 16;
+        const columns = canvas.width / (fontSize * 2);
+        const drops = Array(Math.floor(columns)).fill(1);
+        const redLetters = [];
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0F0';
+            ctx.font = `${fontSize}px monospace`;
+
+            drops.forEach((y, index) => {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                const x = index * fontSize;
+                ctx.fillText(text, x, y * fontSize);
+
+                if (y * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[index] = 0;
+                }
+                drops[index]++;
+            });
+            redLetters.forEach((redLetter, i) => {
+                ctx.fillStyle = '#F00';
+                ctx.font = `${fontSize * 2}px monospace`;
+                ctx.fillText(redLetter.char, redLetter.x, redLetter.y);
+                redLetter.x += redLetter.dx;
+                redLetter.y += redLetter.dy;
+                if (
+                    redLetter.x < 0 || redLetter.x > canvas.width ||
+                    redLetter.y < 0 || redLetter.y > canvas.height
+                ) {
+                    redLetters.splice(i, 1);
+                }  
+            });
+        }
+        function generateRedLetters() {
+            const numLetters = Math.floor(Math.random() * 20) + 1;
+            for (let i = 0; i < numLetters; i++) {
+                const char = letters.charAt(Math.floor(Math.random() * letters.length));
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const dx = (Math.random() - 0.5) * 4; 
+                const dy = (Math.random() - 0.5) * 4; 
+
+                redLetters.push({ char, x, y, dx, dy });
+            }
+        }
+        setInterval(generateRedLetters, 10000);
+        setInterval(draw, 50);
+
+        function selectInputButton(button) {
+            const inputButtons = document.querySelectorAll('.input-buttons .button-30');
+            inputButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
+
+        function selectOutputButton(button) {
+            const outputButtons = document.querySelectorAll('.output-buttons .button-30-red');
+            outputButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
+    </script>
+    <script src="scripts/app.js"></script>
+
+</body>
+</html>
